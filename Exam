@@ -1,0 +1,118 @@
+import java.sql.*;
+import java.util.*;
+
+public class GroceryListManagementSystem {
+    public static void main(String[] args) {
+        final String DB_URL = "jdbc:mysql://localhost/ri_db";
+        final String USER = "test";
+        final String PASS = "test123";
+
+        Scanner sc = new Scanner(System.in);
+        Connection conn = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            int choice = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    // Insert
+                    int itemId = sc.nextInt();
+                    sc.nextLine(); // consume newline
+                    String itemName = sc.nextLine();
+                    String category = sc.nextLine();
+                    int quantity = sc.nextInt();
+                    double price = sc.nextDouble();
+                    try {
+                        PreparedStatement ps = conn.prepareStatement(
+                            "INSERT INTO grocery_list (item_id, item_name, category, quantity, price_per_unit) VALUES (?, ?, ?, ?, ?)");
+                        ps.setInt(1, itemId);
+                        ps.setString(2, itemName);
+                        ps.setString(3, category);
+                        ps.setInt(4, quantity);
+                        ps.setDouble(5, price);
+                        ps.executeUpdate();
+                        System.out.println("Insert Operation successful!");
+                        ps.close();
+                    } catch (SQLException e) {
+                        System.out.println("Insert Error: " + e.getMessage());
+                    }
+                    break;
+
+                case 2:
+                    // Update
+                    String newName = sc.nextLine();
+                    String newCat = sc.nextLine();
+                    double lower = sc.nextDouble();
+                    double upper = sc.nextDouble();
+                    try {
+                        PreparedStatement ps = conn.prepareStatement(
+                            "UPDATE grocery_list SET item_name = ?, category = ? WHERE price_per_unit BETWEEN ? AND ?");
+                        ps.setString(1, newName);
+                        ps.setString(2, newCat);
+                        ps.setDouble(3, lower);
+                        ps.setDouble(4, upper);
+                        ps.executeUpdate();
+                        System.out.println("Update Operation successful!");
+                        ps.close();
+                    } catch (SQLException e) {
+                        System.out.println("Update Error: " + e.getMessage());
+                    }
+                    break;
+
+                case 3:
+                    // Delete
+                    int delId = sc.nextInt();
+                    int threshold = sc.nextInt();
+                    try {
+                        PreparedStatement ps = conn.prepareStatement(
+                            "DELETE FROM grocery_list WHERE item_id = ? OR quantity < ?");
+                        ps.setInt(1, delId);
+                        ps.setInt(2, threshold);
+                        ps.executeUpdate();
+                        System.out.println("Delete Operation successful!");
+                        ps.close();
+                    } catch (SQLException e) {
+                        System.out.println("Delete Error: " + e.getMessage());
+                    }
+                    break;
+
+                case 4:
+                    // Display only
+                    break;
+
+                default:
+                    System.out.println("Invalid option.");
+                    return;
+            }
+
+            // Display Items (for all cases except invalid option)
+            try {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM grocery_list ORDER BY item_name DESC");
+                while (rs.next()) {
+                    System.out.printf("ItemId: %d, Name: %s, Category: %s, Quantity: %d, Price per Unit: %.2f\n",
+                            rs.getInt("item_id"),
+                            rs.getString("item_name"),
+                            rs.getString("category"),
+                            rs.getInt("quantity"),
+                            rs.getDouble("price_per_unit"));
+                }
+                rs.close();
+                st.close();
+            } catch (SQLException e) {
+                System.out.println("Display Error: " + e.getMessage());
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Connection Error: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                System.out.println("Closing Error: " + e.getMessage());
+            }
+        }
+    }
+}
