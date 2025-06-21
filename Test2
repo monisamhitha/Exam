@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+</head>
+<body>
+  <header>
+      <h1>Multiply the Value</h1>
+  </header>
+
+  <section id="input-section">
+      <input id="num1" type="number" placeholder="Enter first number">
+      <br/>
+      <input id="num2" type="number" placeholder="Enter first number">
+      <br/>
+      <button id="multiplyButton">Calculate Product</button> 
+      <br><br>
+      <p id="productResult"></p>
+  </section>
+  <script>
+    function multiply(a, b){
+      return a*b;
+    }
+    document.getElementById('multiplyButton').addEventListener('click', function(){
+      const num1 = parseFloat(document.getElementById('num1').value);
+      const num2 = parseFloat(document.getElementById('num2').value);
+
+      if(!isNaN(num1) && !isNaN(num2)){
+        const product = multiply(num1, num2);
+        document.getElementById('productResult').textContent = "Product: "+product;
+      }else{
+        document.getElementById('productResult').textContent = "Please enter valid numbers.";
+      }
+    })
+  </script>
+</body>
+</html>
